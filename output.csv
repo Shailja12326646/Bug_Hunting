@@ -1,0 +1,110 @@
+ID,Bug Line,Explanation
+16,"5
+10","Line 5: The method chain includes pin() before writeData(), which is incorrect. The pin() method should be called after setting up the label and other configurations, but before executing the vector. Fix: .label(""sLabel"").copyLabel(false).writeData(""rt"", 8, 0).pin(A)
+
+Line 10: The method chain includes pin() before writeData(), which is incorrect. The pin() method should be called after setting up the label and other configurations, but before executing the vector. Fix: .label(""sLabel"").copyLabel(false).writeData(""rt"", 8, 8).pin(A)"
+32,"2
+3
+5","Line 2: The method chain vForce(1 uA).burst() is incorrect because vForce sets a voltage force condition, which should not be immediately followed by a burst command. A burst operation typically follows a setup of conditions that define what the burst will capture or execute. Fix: rdi.port(""pt1"").dc().pin(""dig2"").vForce(1 uA);
+
+Line 3: The method burst() is called twice consecutively, which is likely a mistake. The first call to burst() should be sufficient to initiate the burst operation with the specified label 'MPBurst2'. The second call to burst() is redundant and may cause unexpected behavior. Fix: rdi.port(TA::MULTI_PORT).func().burst(""MPBurst2"");
+
+Line 5: Similar to the issue on line 3, the method burst() is called twice consecutively, which is likely a mistake. The first call to burst() should be enough to start the burst operation with the label 'MPBurst1'. The second call to burst() is unnecessary and could lead to undefined behavior. Fix: rdi.port(TA::MULTI_PORT).func().burst(""MPBurst1"");"
+25,"5
+7","Line 5: The RDI_END() macro is incorrectly placed before the protocol write operation. This prematurely ends the RDI block, preventing the subsequent protocol execution from being recognized. Fix: Remove the RDI_END() macro from this line.
+
+Line 7: The RDI_BEGIN() macro is incorrectly placed after the setup of runtime values and protocol operations. It should be called at the beginning of the RDI block to properly initialize the environment. Fix: Move the RDI_BEGIN() macro to the start of the RDI block, before any other RDI operations."
+10,"2
+4","Line 2: The method 'readHumanSeniority' does not exist in the context of reading humidity from the PMUX card. This is likely a typo or confusion between methods. Fix: rdi.pmux(4).module(""02"").readHumidity().execute();
+
+Line 4: The method 'getHumanSeniority' does not exist for retrieving the humidity value. This method name is incorrect and should be replaced with the appropriate method to get the humidity. Fix: int hum = rdi.id(4).getHumidity(""02"");"
+26,"5
+7","Line 5: The second argument to addWaveform should be the repetition count, but it is incorrectly placed as the first argument. This will cause the waveform to be added in the wrong order or with incorrect repetition. Fix: .addWaveform(2, wav3)      // Add ""wav3"" twice
+
+Line 7: The method `repeat` is called before adding waveforms, which is incorrect. The `repeat` method should be used after calling `execute` or `read` to specify how many times the entire sequence should repeat. Fix: rdi.dc().pin(""Pin2"").vForce().waveform(wav1)
+  .addWaveform(wav2, 3)      // Add ""wav2"" three times (group 2..4)
+  .FS(250 /* kHz */).read().repeat(2);"
+23,"7
+25
+30
+31","Line 7: The method chain uses an incorrect call to 'burstUpload'. The parentheses after 'burstUpload' indicate a function call, which is not the intended action here. Instead, the 'begin' method should be called directly on the 'burstUpload' object. Fix: rdi.smartVec(""id"").burstUpload.begin();
+
+Line 25: The method chain incorrectly calls 'smartVec' on 'burstUpload'. This is not necessary and leads to a wrong call chain. The 'end' method should be called directly on the 'burstUpload' object. Fix: rdi.burstUpload.end();
+
+Line 30: The method 'getReadBit' is missing the bit position parameter. This parameter is required to specify which bit was read from the pin. Fix: ARRAY_I bitResult = rdi.id(""id"").getReadBit(""DATA2"", 2);
+
+Line 31: The method 'getReadData' is missing the data position parameter. This parameter is required to specify which data was read from the pin. Fix: ARRAY_LL dataResult = rdi.id(""id"").getReadData(""DATA4"", 8);"
+4,"3
+4","Line 3: The vForce and vForceRange methods are called in the incorrect order. vForceRange should be called before vForce to ensure that the voltage forcing range is set before specifying the exact voltage force value. Fix: rdi.dc().pin(m_rMcd.sP_VS).vForceRange(30 V).vForce(31 V).iForceRange(50 mA).iClamp(50 mA, -50 mA)
+
+Line 4: The vForce and vForceRange methods are called in the incorrect order. vForceRange should be called before vForce to ensure that the voltage forcing range is set before specifying the exact voltage force value. Fix: .pin(m_rMcd.sP_LIN).vForceRange(30 V).vForce(13.5 V).iForceRange(5 uA).iClamp(-5 uA, 5 uA)"
+31,-1,Detection failed — please review manually.
+17,"2
+4
+8","Line 2: The method 'emap' is incorrect. The correct method to define an element map in the Infineon SmartRDI API is 'elementMap'. Fix: rdi.elementMap(""a"")
+
+Line 4: The method 'FFV' is incorrect. To set the first fail vector, the correct method is 'firstFailVector'. Fix: .firstFailVector(10)
+
+Line 8: The method 'getFFC' is incorrect. To retrieve the first fail count, the correct method is 'getFirstFailCount'. Fix: int iffv = rdi.id(""a"").getFirstFailCount();"
+27,"2
+3
+5","Line 2: The argument order for imeasRange is incorrect. The method imeasRange should be called after setting the pin to ensure that the current measurement range is applied to the correct pins. Fix: rdi.dc().pin(""DPS_1,DPS_2"").imeasRange(100 uA);
+
+Line 3: The argument order for vForce is incorrect. The method vForce should be called after setting the pin to ensure that the voltage force is applied to the correct pins. Fix: rdi.dc().pin(""DPS_1,DPS_2"").vForce(0.01 V);
+
+Line 5: The method chain is incorrect. The call to imeas should start with rdi.dc().pin() to specify the pins before measuring the current. Fix: rdi.dc().pin(""DPS_0,DPS_1"").imeas().write();"
+24,"3
+6","Line 3: The method 'interS' is not recognized as a valid method name in the context of setting up a digital capture pattern. This likely results in a compilation error or unexpected behavior. Fix: rdi.digCap(""cap"").pin(""D0"").samples(100).initDiscard(10).interSampleTime(1);
+
+Line 6: The method 'getVector' is called with the incorrect argument 'DO', which does not match the pin name used during the setup ('D0'). This will result in an error or incorrect data retrieval. Fix: const ARRAY_I& aiData = rdi.id(""cap"").getVector(""D0"");"
+14,"3
+7
+8","Line 3: The method 'iForce' is incorrect for setting the current force in amperes. The correct method name should be 'iForceA'. Fix: rdi.dc(""a"").pin(""dig"").iForceA(0).vMeas().execute();
+
+Line 7: The method 'getAlarmValue' does not exist in the API. It should be replaced with 'getAlarmThreshold' or a similar method that retrieves the alarm threshold value. Fix: double dVal = rdi.id(""a"").getAlarmThreshold();
+
+Line 8: The argument order for 'getAlarmBurstValue' might be incorrect. The first argument should typically be the identifier, and 'AVI' should be the second argument if it represents an additional parameter. Fix: ARRAY_D aryVal = rdi.id(""a"").getAlarmBurstValue(""a"", ""AVI"");"
+9,2,Line 2: The wait function on Line 2 uses 'us' which is not recognized as a valid duration type by the std::chrono library. This will result in a compilation error because the compiler cannot interpret 'us' as microseconds. Fix: rdi.cogo().wait(std::chrono::microseconds(100));
+13,"3
+4
+5","Line 3: The method 'getVesjkctor' is incorrect as it does not exist in the RDI interface. The correct method name should be 'getVector'. Fix: rdi.id(""cap"").getVector();
+
+Line 4: The method 'getVslkhalue' is incorrect as it does not exist in the RDI interface. The correct method name should be 'getValue'. Fix: rdi.id(""idd"").getValue();
+
+Line 5: The method 'getWlkjnaveform' is incorrect as it does not exist in the RDI interface. The correct method name should be 'getWaveform'. Fix: rdi.id(""dgr"").getWaveform();"
+22,"2
+3
+7","Line 2: The method chain incorrectly starts with selecting the PMUX card before selecting the module. According to the API, the module should be selected first. Fix: rdi.module(""02"").pmux(1)
+
+Line 3: The method 'readTempThresh' is being used to set a temperature threshold value, which is incorrect. To read the current temperature threshold, the method 'getTempThresh' should be used instead. Fix: .getTempThresh()
+
+Line 7: The method 'getTempThresh' is called with a module ID as a string argument, which is redundant because the module has already been selected in the previous command. This can lead to incorrect behavior or errors. Fix: int tempTh = rdi.id(1).getTempThresh();"
+29,"2
+3
+4
+5
+6","Line 2: The method chain does not end with execute() after setting the pin state, which means the command will not be executed. Fix: rdi.route().pin(""P0x01F1"").setOff().execute();
+
+Line 3: The method chain does not end with execute() after setting the pin state, which means the command will not be executed. Fix: rdi.route().pin(""P0x07F1"").setOn().execute();
+
+Line 4: The method retrievePmuxPinStatus does not end with execute(), which is necessary to properly call the API and retrieve the pin status. Fix: rdi.route().retrievePmuxPinStatus(""P0x01F1"").execute();
+
+Line 5: The method retrievePmuxPinStatus does not end with execute(), which is necessary to properly call the API and retrieve the pin status. Fix: rdi.route().retrievePmuxPinStatus(""P0x07F1"").execute();
+
+Line 6: The method retrievePmuxPinStatus does not end with execute(), which is necessary to properly call the API and retrieve the pin status. Fix: rdi.route().retrievePmuxPinStatus(""P0x08F1"").execute();"
+2,"3
+4","Line 3: The order of arguments in the vForceRange and iForceRange methods is incorrect. Typically, the range should be specified as (min, max) to ensure that the system correctly understands the minimum and maximum values. Fix: rdi.dc().pin(m_rMcd.sP_VS).vForce(13.5 V).vForceRange(0 V, 35 V).iForceRange(0 mA, 50 mA).iClamp(-50 mA, 50 mA)
+
+Line 4: The iForceRange value of 5 uA is too small for practical use and could lead to issues if the actual current exceeds this range. It is recommended to increase the range to a more reasonable value to avoid potential errors. Fix: rdi.dc().pin(m_rMcd.sP_LIN).vForce(13.5 V).vForceRange(0 V, 30 V).iForceRange(0 uA, 100 uA).iClamp(-100 uA, 100 uA)"
+20,"1
+4","Line 1: The method 'digCapBurstSiteUpload' does not exist in the Infineon SmartRDI API. The correct method to control the burst site upload for digital capture results is 'setBurstSiteUpload'. Fix: rdi.setBurstSiteUpload(false);
+
+Line 4: The call chain for 'rdi.digCap(1)' is incorrect. After specifying the digital capture channel, the method calls or settings should be chained directly to configure the capture parameters. The current code incorrectly attempts to chain another method call without proper configuration. Fix: rdi.digCap(1).pin(""DATA1"").samples(9216).execute();"
+11,"2
+3","Line 2: The method vForce is called before iMeans, which can lead to incorrect operation sequencing. The voltage forcing should be set after configuring the current measurement settings to ensure that the measurement is performed correctly. Fix: rdi.dc().pin(""dig1"").iMeans().vForce(1).iRange(2 mAh).execute();
+
+Line 3: The method iForce is called after vMeans, which can result in incorrect operation sequencing. The current forcing should be set before configuring the voltage measurement settings to ensure that the measurement is performed correctly. Fix: rdi.dc().pin(""dig2"").iForce(1 uA).vMeans().execute();"
+3,"4
+5","Line 4: The value '31 V' for vForce is out of the specified range of 30 V. This can cause the system to either ignore the setting or result in undefined behavior. Fix: rdi.dc().pin(m_rMcd.sP_VS).vForce(30 V).vForceRange(30 V).iForceRange(50 mA).iClamp(-50 mA, 50 mA)
+
+Line 5: The value '13.5 V' for vForce on pin sP_LIN is out of the specified range of 30 V. This can cause the system to either ignore the setting or result in undefined behavior. Fix: rdi.dc().pin(m_rMcd.sP_LIN).vForce(30 V).vForceRange(30 V).iForceRange(5 uA).iClamp(-5 uA, 5 uA)"

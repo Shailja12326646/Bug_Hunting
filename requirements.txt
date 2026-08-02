@@ -1,0 +1,16 @@
+# Agentic Bug Hunter — Requirements
+# MCP Server dependencies (pre-built server)
+llama-index==0.14.13
+llama-index-embeddings-huggingface
+fastmcp==2.14.5
+
+# Agent dependencies
+huggingface_hub>=0.25.0
+python-dotenv>=1.0.0
+
+# UI & data
+streamlit>=1.35.0
+pandas>=2.0.0
+
+# Async support for Streamlit
+nest_asyncio>=1.6.0
